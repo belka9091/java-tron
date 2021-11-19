@@ -1537,7 +1537,6 @@ message `SmartContract` has mutiple attributes and nested message `ABI`
               Function = 2;
               Event = 3;
               Fallback = 4;
-              Receive = 5;
           }
           ```
   
@@ -1618,7 +1617,6 @@ message `SmartContract` has mutiple attributes and nested message `ABI`
                      Function = 2;
                      Event = 3;
                      Fallback = 4;
-                     Receive = 5;
                 }
                 message Param {
                     bool indexed = 1;

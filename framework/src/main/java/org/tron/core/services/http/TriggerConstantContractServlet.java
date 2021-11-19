@@ -45,12 +45,9 @@ public class TriggerConstantContractServlet extends RateLimiterServlet {
         || StringUtil.isNullOrEmpty(jsonObject.getString("contract_address"))) {
       throw new InvalidParameterException("contract_address isn't set.");
     }
-    boolean isFunctionSelectorSet = jsonObject.containsKey(functionSelector)
-        && !StringUtil.isNullOrEmpty(jsonObject.getString(functionSelector));
-    boolean isDataSet = jsonObject.containsKey("data")
-        && !StringUtil.isNullOrEmpty(jsonObject.getString("data"));
-    if (isFunctionSelectorSet && isDataSet) {
-      throw new InvalidParameterException("set either function_selector or data but not both");
+    if (!jsonObject.containsKey(functionSelector)
+        || StringUtil.isNullOrEmpty(jsonObject.getString(functionSelector))) {
+      throw new InvalidParameterException("function_selector isn't set.");
     }
   }
 
@@ -68,23 +65,10 @@ public class TriggerConstantContractServlet extends RateLimiterServlet {
       validateParameter(contract);
       JsonFormat.merge(contract, build, visible);
       JSONObject jsonObject = JSONObject.parseObject(contract);
-
-      boolean isFunctionSelectorSet = jsonObject.containsKey(functionSelector)
-          && !StringUtil.isNullOrEmpty(jsonObject.getString(functionSelector));
-      boolean isDataSet = jsonObject.containsKey("data")
-          && !StringUtil.isNullOrEmpty(jsonObject.getString("data"));
-      String data;
-      if (isFunctionSelectorSet) {
-        String selector = jsonObject.getString(functionSelector);
-        String parameter = jsonObject.getString("parameter");
-        data = Util.parseMethod(selector, parameter);
-      } else {
-        data = jsonObject.getString("data");
-      }
+      String selector = jsonObject.getString(functionSelector);
+      String parameter = jsonObject.getString("parameter");
+      String data = Util.parseMethod(selector, parameter);
       build.setData(ByteString.copyFrom(ByteArray.fromHexString(data)));
-      if (!isFunctionSelectorSet && !isDataSet) {
-        build.setData(ByteString.copyFrom(new byte[0]));
-      }
       long feeLimit = Util.getJsonLongValue(jsonObject, "fee_limit");
 
       TransactionCapsule trxCap = wallet
